@@ -1,0 +1,348 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  color: #f4f4f4;
+  background-color: #0d2f1d;
+  min-height: 100vh;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(4, 67, 35, 0.5), rgba(10, 33, 23, 0.62)),
+    url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Brihadeeswara_Temple%2C_Tanjore%2C_India.jpg/1280px-Brihadeeswara_Temple%2C_Tanjore%2C_India.jpg")
+      center top / cover no-repeat,
+    linear-gradient(to top, rgba(7, 48, 28, 0.72) 0 34%, transparent 58%),
+    url("./assets/paddy-field.png")
+      center bottom / cover no-repeat,
+    url("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Gir_cow_3.jpg/640px-Gir_cow_3.jpg")
+      right 1.5rem bottom 1rem / 250px no-repeat;
+  opacity: 0.88;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.top-bar,
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+.top-bar {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.menu-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  background: #ffffff;
+  color: #0d6a3c;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo-icon {
+  width: 58px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(150deg, #0f8d4e, #ffffff);
+  color: #ffdf2b;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.02rem;
+  letter-spacing: 0.04em;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+  border: 2px solid #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.brand p {
+  margin: 0;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.container {
+  max-width: 1150px;
+  margin: 1rem auto;
+  padding: 0 1rem 1rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1rem;
+}
+
+.hero,
+.products,
+.cart,
+.tracking {
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.hero {
+  grid-column: span 2;
+}
+
+.hero h2,
+.products h3,
+.cart h3,
+.tracking h3 {
+  margin-top: 0;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.hero-brand-image {
+  margin-top: 0.9rem;
+  width: min(240px, 100%);
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 2px solid rgba(0, 0, 0, 0.75);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.hero-brand-image img {
+  width: 100%;
+  display: block;
+}
+
+.gsg-stamp {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(8, 96, 53, 0.95);
+  color: #ffdf2b;
+  border: 2px solid #000;
+  border-radius: 8px;
+  padding: 0.2rem 0.45rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.btn {
+  border: none;
+  border-radius: 10px;
+  padding: 0.62rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: #0f8d4e;
+  color: #fff;
+}
+
+.btn-light {
+  background: #ffffff;
+  color: #0d6a3c;
+  border: 2px solid #000;
+}
+
+.btn-outline {
+  border: 1px solid #fff;
+  background: transparent;
+  color: #fff;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.8rem;
+  border-radius: 12px;
+}
+
+.product-image {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.card h4,
+.card p {
+  margin: 0.3rem 0;
+}
+
+.small-text {
+  font-size: 0.88rem;
+  opacity: 0.95;
+}
+
+.cart-items {
+  display: grid;
+  gap: 0.45rem;
+  min-height: 80px;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.92rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.5rem;
+}
+
+.cart-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.cancel-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(180, 0, 0, 0.25);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+
+.cancel-btn:hover {
+  background: rgba(200, 0, 0, 0.45);
+}
+
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.75rem 0;
+}
+
+.full {
+  width: 100%;
+}
+
+#map {
+  height: 250px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 0.7rem;
+}
+
+.delivery-panel {
+  margin-top: 0.8rem;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.6rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 9;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  color: #1f1f1f;
+  border-radius: 14px;
+  width: min(92vw, 420px);
+  padding: 1rem;
+}
+
+.modal-content input {
+  width: 100%;
+  margin-bottom: 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #b7b7b7;
+  padding: 0.55rem 0.6rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.owner-controls {
+  margin-top: 0.8rem;
+  border-top: 1px solid #d7d7d7;
+  padding-top: 0.8rem;
+}
+
+#ownerPriceList {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.6rem 0;
+}
+
+.owner-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.owner-price-row input {
+  width: 100px;
+  margin-bottom: 0;
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    grid-column: span 1;
+  }
+}

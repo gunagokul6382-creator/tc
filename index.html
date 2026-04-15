@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GS CHOLAS DIARY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="overlay"></div>
+  <header class="top-bar">
+    <div class="brand">
+      <div class="logo-icon">GSG</div>
+      <div>
+        <h1>GS CHOLAS DIARY</h1>
+        <p>Fresh Dairy Delivery</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="openOwnerMenu" class="menu-btn" title="Owner Menu" aria-label="Owner Menu">☰</button>
+      <button id="openAuthModal" class="btn btn-light">Login / Register</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>Order Fresh Dairy Online</h2>
+      <p>Milk, Ghee, Butter, and Paneer delivered to your live location.</p>
+      <div class="hero-cta">
+        <button id="continueGuest" class="btn btn-primary">Continue as Guest</button>
+        <button id="shareLocation" class="btn btn-outline">Share Live Location</button>
+      </div>
+      <div class="hero-brand-image">
+        <img src="./assets/milk-brand.png" alt="GSG Milk Brand" />
+        <span class="gsg-stamp">GSG</span>
+      </div>
+      <p class="small-text" id="authStatus">You are browsing as a guest.</p>
+    </section>
+
+    <section class="products">
+      <h3>Sales Items</h3>
+      <div id="productGrid" class="grid"></div>
+    </section>
+
+    <section class="cart">
+      <h3>Your Cart</h3>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-total-row">
+        <span>Total</span>
+        <strong id="cartTotal">Rs. 0</strong>
+      </div>
+      <button id="placeOrder" class="btn btn-primary full">Place Order</button>
+    </section>
+
+    <section class="tracking">
+      <h3>Delivery Tracking</h3>
+      <p id="locationStatus" class="small-text">Live location not shared yet.</p>
+      <div id="map"></div>
+      <div class="delivery-panel">
+        <p><strong>Customer:</strong> <span id="deliveryName">Guest Customer</span></p>
+        <p><strong>Status:</strong> <span id="deliveryStatus">Waiting for order...</span></p>
+      </div>
+    </section>
+  </main>
+
+  <div id="authModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Customer Login / Register</h3>
+      <label for="customerName">Name</label>
+      <input type="text" id="customerName" placeholder="Enter your name" />
+      <label for="customerPhone">Mobile Number</label>
+      <input type="tel" id="customerPhone" placeholder="Enter your mobile number" />
+      <div class="modal-actions">
+        <button id="saveCustomer" class="btn btn-primary">Save & Continue</button>
+        <button id="closeModal" class="btn btn-light">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="ownerModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Owner Panel</h3>
+      <p class="small-text">Only owner can edit prices and download sales PDF.</p>
+      <label for="ownerPassword">Owner Password</label>
+      <input type="password" id="ownerPassword" placeholder="Enter owner password" />
+      <button id="unlockOwner" class="btn btn-primary full">Unlock Owner Access</button>
+
+      <div id="ownerControls" class="hidden owner-controls">
+        <h4>Edit Product Prices</h4>
+        <div id="ownerPriceList"></div>
+        <div class="modal-actions">
+          <button id="savePrices" class="btn btn-primary">Save Prices</button>
+          <button id="downloadSalesPdf" class="btn btn-light">One Day Sales PDF</button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="closeOwnerModal" class="btn btn-light">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
