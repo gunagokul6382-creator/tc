@@ -1,28 +1,8 @@
 const products = [
-  {
-    id: "a1-milk",
-    name: "A1 பால் / A1 Milk (1L)",
-    price: 65,
-    image: "./assets/a1-milk.png",
-  },
-  {
-    id: "a2-milk",
-    name: "A2 பால் / A2 Milk (1L)",
-    price: 85,
-    image: "./assets/a2-milk.png",
-  },
-  {
-    id: "ghee",
-    name: "நெய் / Ghee (500ml)",
-    price: 420,
-    image: "./assets/ghee.png",
-  },
-  {
-    id: "butter",
-    name: "வெண்ணெய் / Butter (200g)",
-    price: 120,
-    image: "./assets/butter.png",
-  },
+  { id: "a1-milk", name: "A1 பால் / A1 Milk (1L)", price: 65, image: "./assets/a1-milk.png" },
+  { id: "a2-milk", name: "A2 பால் / A2 Milk (1L)", price: 85, image: "./assets/a2-milk.png" },
+  { id: "ghee", name: "நெய் / Ghee (500ml)", price: 420, image: "./assets/ghee.png" },
+  { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "./assets/butter.png" },
 ];
 
 const OWNER_PASSWORD = "gsg@owner";
@@ -32,12 +12,7 @@ const mergedProducts =
   savedProducts.length > 0
     ? products.map((defaultProduct) => {
         const saved = savedProducts.find((item) => item.id === defaultProduct.id);
-        return saved
-          ? {
-              ...defaultProduct,
-              price: saved.price ?? defaultProduct.price,
-            }
-          : defaultProduct;
+        return saved ? { ...defaultProduct, price: saved.price ?? defaultProduct.price } : defaultProduct;
       })
     : products;
 
@@ -48,7 +23,7 @@ const state = {
   locationWatcher: null,
   lastLocation: JSON.parse(localStorage.getItem("cholasLocation")) || null,
   ownerUnlocked: false,
-  salesHistory: JSON.parse(localStorage.getItem("cholasSalesHistory")) || [],
+  orders: JSON.parse(localStorage.getItem("cholasOrders")) || [],
 };
 
 localStorage.setItem("cholasProducts", JSON.stringify(state.products));
@@ -64,22 +39,60 @@ const authModal = document.getElementById("authModal");
 const ownerModal = document.getElementById("ownerModal");
 const ownerControls = document.getElementById("ownerControls");
 const ownerPriceList = document.getElementById("ownerPriceList");
+const customerDashboardStatus = document.getElementById("customerDashboardStatus");
+const customerCurrentOrder = document.getElementById("customerCurrentOrder");
+const customerOrderHistory = document.getElementById("customerOrderHistory");
+const ownerDashboard = document.getElementById("ownerDashboard");
+const ownerOrdersList = document.getElementById("ownerOrdersList");
+const openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
 
 const map = L.map("map").setView([10.7867, 79.1378], 12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "&copy; OpenStreetMap contributors",
-}).addTo(map);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
 
 let locationMarker = L.marker([10.7867, 79.1378]).addTo(map);
 locationMarker.bindPopup("Delivery will track customer live location.");
 
+function saveOrders() {
+  localStorage.setItem("cholasOrders", JSON.stringify(state.orders));
+}
+
+function formatDateTime(isoValue) {
+  const date = new Date(isoValue);
+  return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+}
+
+function getStatusClass(status) {
+  if (status === "delivered") return "status-delivered";
+  if (status === "delivering") return "status-delivering";
+  return "status-pending";
+}
+
+function getStatusLabel(status) {
+  if (status === "delivered") return "Delivered";
+  if (status === "delivering") return "Out for delivery";
+  return "Order confirmed";
+}
+
+function getCustomerOrders() {
+  if (!state.customer?.loginId) return [];
+  return state.orders
+    .filter((order) => order.customerLoginId === state.customer.loginId)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+function getActiveOrderForCustomer() {
+  return getCustomerOrders().find((order) => order.status !== "delivered") || null;
+}
+
 function updateAuthInfo() {
   if (state.customer) {
-    authStatus.textContent = `Logged in as ${state.customer.name} (${state.customer.phone})`;
+    authStatus.textContent = `Logged in as ${state.customer.name} (${state.customer.phone}) | ID: ${state.customer.loginId}`;
     deliveryName.textContent = state.customer.name;
+    customerDashboardStatus.textContent = `${state.customer.name} (${state.customer.loginId}) order history shown below.`;
   } else {
     authStatus.textContent = "You are browsing as a guest.";
     deliveryName.textContent = "Guest Customer";
+    customerDashboardStatus.textContent = "Login செய்து order history பார்க்கலாம்.";
   }
 }
 
@@ -123,6 +136,88 @@ function renderCart() {
   cartTotal.textContent = `Rs. ${total}`;
 }
 
+function renderCustomerOrders() {
+  if (!state.customer?.loginId) {
+    customerCurrentOrder.innerHTML = `<p class="small-text">Current order status காண login செய்யவும்.</p>`;
+    customerOrderHistory.innerHTML = `<p class="small-text">No orders. Login செய்து order place பண்ணினால் history வரும்.</p>`;
+    return;
+  }
+
+  const orders = getCustomerOrders();
+  const activeOrder = getActiveOrderForCustomer();
+
+  if (!activeOrder) {
+    customerCurrentOrder.innerHTML = `<p class="small-text">No active orders right now.</p>`;
+    deliveryStatus.textContent = "Waiting for order...";
+  } else {
+    customerCurrentOrder.innerHTML = `
+      <div class="order-card">
+        <p><strong>Order ID:</strong> ${activeOrder.id}</p>
+        <p><strong>Status:</strong> <span class="status-pill ${getStatusClass(activeOrder.status)}">${getStatusLabel(activeOrder.status)}</span></p>
+        <p><strong>Total:</strong> Rs. ${activeOrder.total}</p>
+        <p><strong>Placed:</strong> ${formatDateTime(activeOrder.createdAt)}</p>
+      </div>
+    `;
+    deliveryStatus.textContent = `Order ${activeOrder.id} - ${getStatusLabel(activeOrder.status)}`;
+  }
+
+  if (!orders.length) {
+    customerOrderHistory.innerHTML = `<p class="small-text">No orders yet.</p>`;
+    return;
+  }
+
+  customerOrderHistory.innerHTML = orders
+    .map(
+      (order) => `
+      <div class="order-card">
+        <p><strong>${order.id}</strong> - <span class="status-pill ${getStatusClass(order.status)}">${getStatusLabel(order.status)}</span></p>
+        <p><strong>Total:</strong> Rs. ${order.total}</p>
+        <p><strong>Items:</strong> <span class="order-items">${order.items.map((item) => `${item.name} x ${item.qty}`).join(", ")}</span></p>
+        <p><strong>Date:</strong> ${formatDateTime(order.createdAt)}</p>
+      </div>
+    `
+    )
+    .join("");
+}
+
+function renderOwnerOrders() {
+  if (!state.ownerUnlocked) {
+    ownerOrdersList.innerHTML = `<p class="small-text">Unlock owner access to view incoming orders.</p>`;
+    return;
+  }
+
+  const sortedOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  if (!sortedOrders.length) {
+    ownerOrdersList.innerHTML = `<p class="small-text">No orders received yet.</p>`;
+    return;
+  }
+
+  ownerOrdersList.innerHTML = sortedOrders
+    .map((order) => {
+      const locationText = order.location
+        ? `${order.location.latitude.toFixed(5)}, ${order.location.longitude.toFixed(5)}`
+        : "Not available";
+
+      return `
+      <div class="order-card">
+        <p><strong>${order.id}</strong> - <span class="status-pill ${getStatusClass(order.status)}">${getStatusLabel(order.status)}</span></p>
+        <p><strong>Customer:</strong> ${order.customerName} (${order.customerLoginId})</p>
+        <p><strong>Phone:</strong> ${order.customerPhone}</p>
+        <p><strong>Location:</strong> ${locationText}</p>
+        <p><strong>Items:</strong> <span class="order-items">${order.items.map((item) => `${item.name} x ${item.qty}`).join(", ")}</span></p>
+        <p><strong>Total:</strong> Rs. ${order.total}</p>
+        <p><strong>Time:</strong> ${formatDateTime(order.createdAt)}</p>
+        ${
+          order.status !== "delivered"
+            ? `<div class="owner-order-actions"><button class="btn btn-primary btn-sm" onclick="markOrderDelivered('${order.id}')">Mark Delivered</button></div>`
+            : ""
+        }
+      </div>
+    `;
+    })
+    .join("");
+}
+
 function addToCart(id) {
   const product = state.products.find((item) => item.id === id);
   const existing = state.cart.find((item) => item.id === id);
@@ -136,35 +231,39 @@ function addToCart(id) {
 
 function removeFromCart(id) {
   const existing = state.cart.find((item) => item.id === id);
-  if (!existing) {
-    return;
-  }
+  if (!existing) return;
 
   if (existing.qty > 1) {
     existing.qty -= 1;
   } else {
     state.cart = state.cart.filter((item) => item.id !== id);
   }
-
   renderCart();
 }
 
 function saveCustomerProfile() {
+  const loginId = document.getElementById("customerLoginId").value.trim().toLowerCase();
   const name = document.getElementById("customerName").value.trim();
   const phone = document.getElementById("customerPhone").value.trim();
 
-  if (!name || !phone) {
-    alert("Please enter both name and mobile number.");
+  if (!loginId || !name || !phone) {
+    alert("Please enter login id, name and mobile number.");
     return;
   }
 
-  state.customer = { name, phone };
+  state.customer = { loginId, name, phone };
   localStorage.setItem("cholasCustomer", JSON.stringify(state.customer));
   updateAuthInfo();
+  renderCustomerOrders();
   authModal.classList.add("hidden");
 }
 
 function openAuthModal() {
+  if (state.customer) {
+    document.getElementById("customerLoginId").value = state.customer.loginId;
+    document.getElementById("customerName").value = state.customer.name;
+    document.getElementById("customerPhone").value = state.customer.phone;
+  }
   authModal.classList.remove("hidden");
 }
 
@@ -189,7 +288,10 @@ function unlockOwnerAccess() {
 
   state.ownerUnlocked = true;
   ownerControls.classList.remove("hidden");
+  openOwnerDashboardBtn.classList.remove("hidden");
+  ownerDashboard.classList.remove("hidden");
   renderOwnerPrices();
+  renderOwnerOrders();
 }
 
 function renderOwnerPrices() {
@@ -214,10 +316,7 @@ function saveOwnerPrices() {
   state.products = state.products.map((item) => {
     const input = document.getElementById(`owner-price-${item.id}`);
     const newPrice = Number(input.value);
-    return {
-      ...item,
-      price: Number.isFinite(newPrice) && newPrice > 0 ? newPrice : item.price,
-    };
+    return { ...item, price: Number.isFinite(newPrice) && newPrice > 0 ? newPrice : item.price };
   });
 
   localStorage.setItem("cholasProducts", JSON.stringify(state.products));
@@ -238,8 +337,7 @@ function generateOneDaySalesPdf() {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  const todaySales = state.salesHistory.filter((sale) => sale.orderDate === today);
-
+  const todaySales = state.orders.filter((order) => order.createdAt.slice(0, 10) === today);
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
   let y = 20;
@@ -258,7 +356,7 @@ function generateOneDaySalesPdf() {
     todaySales.forEach((sale, idx) => {
       const itemsText = sale.items.map((it) => `${it.name} x ${it.qty}`).join(", ");
       grandTotal += sale.total;
-      pdf.text(`${idx + 1}. ${sale.customerName} - Rs. ${sale.total}`, 14, y);
+      pdf.text(`${idx + 1}. ${sale.customerName} (${sale.customerLoginId}) - Rs. ${sale.total}`, 14, y);
       y += 6;
       pdf.text(`   ${itemsText}`, 14, y);
       y += 8;
@@ -287,7 +385,6 @@ function startLocationShare() {
   }
 
   locationStatus.textContent = "Requesting location access...";
-
   state.locationWatcher = navigator.geolocation.watchPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
@@ -297,9 +394,14 @@ function startLocationShare() {
       locationMarker.setLatLng([latitude, longitude]);
       map.setView([latitude, longitude], 15);
       locationMarker.bindPopup(`Customer Live Location: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`).openPopup();
-
       locationStatus.textContent = `Live location active: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-      deliveryStatus.textContent = "Customer location received. Delivery can start.";
+
+      const activeOrder = getActiveOrderForCustomer();
+      if (activeOrder) {
+        activeOrder.location = { ...state.lastLocation };
+        saveOrders();
+        renderOwnerOrders();
+      }
     },
     (error) => {
       locationStatus.textContent = `Location error: ${error.message}`;
@@ -309,6 +411,11 @@ function startLocationShare() {
 }
 
 function placeOrder() {
+  if (!state.customer?.loginId) {
+    alert("Please login/register with login id before placing order.");
+    return;
+  }
+
   if (!state.cart.length) {
     alert("Please add products to cart.");
     return;
@@ -320,21 +427,44 @@ function placeOrder() {
   }
 
   const total = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const customerLabel = state.customer ? state.customer.name : "Guest Customer";
-  const orderDate = new Date().toISOString().slice(0, 10);
-
-  state.salesHistory.push({
-    orderDate,
-    customerName: customerLabel,
+  const nowIso = new Date().toISOString();
+  const order = {
+    id: `ORD-${Date.now().toString().slice(-6)}`,
+    createdAt: nowIso,
+    customerLoginId: state.customer.loginId,
+    customerName: state.customer.name,
+    customerPhone: state.customer.phone,
+    location: { ...state.lastLocation },
+    items: state.cart.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
     total,
-    items: state.cart.map((item) => ({ name: item.name, qty: item.qty })),
-  });
-  localStorage.setItem("cholasSalesHistory", JSON.stringify(state.salesHistory));
+    status: "delivering",
+    deliveredAt: null,
+  };
 
-  deliveryStatus.textContent = `Order confirmed for ${customerLabel}. Delivery partner heading to live location.`;
-  alert(`Order placed successfully!\nCustomer: ${customerLabel}\nTotal: Rs. ${total}`);
+  state.orders.push(order);
+  saveOrders();
+
+  deliveryStatus.textContent = `Order ${order.id} confirmed. Delivery partner heading to live location.`;
+  alert(`Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}`);
   state.cart = [];
   renderCart();
+  renderCustomerOrders();
+  renderOwnerOrders();
+}
+
+function markOrderDelivered(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order) return;
+
+  order.status = "delivered";
+  order.deliveredAt = new Date().toISOString();
+  saveOrders();
+  renderOwnerOrders();
+  renderCustomerOrders();
+
+  if (state.customer?.loginId === order.customerLoginId) {
+    deliveryStatus.textContent = `Order ${order.id} delivered successfully.`;
+  }
 }
 
 if (state.lastLocation) {
@@ -350,6 +480,7 @@ document.getElementById("continueGuest").addEventListener("click", () => {
   state.customer = null;
   localStorage.removeItem("cholasCustomer");
   updateAuthInfo();
+  renderCustomerOrders();
 });
 document.getElementById("shareLocation").addEventListener("click", startLocationShare);
 document.getElementById("placeOrder").addEventListener("click", placeOrder);
@@ -358,10 +489,17 @@ document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerM
 document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
 document.getElementById("savePrices").addEventListener("click", saveOwnerPrices);
 document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
+openOwnerDashboardBtn.addEventListener("click", () => {
+  ownerDashboard.classList.remove("hidden");
+  ownerModal.classList.add("hidden");
+});
 
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
+window.markOrderDelivered = markOrderDelivered;
 
 renderProducts();
 renderCart();
 updateAuthInfo();
+renderCustomerOrders();
+renderOwnerOrders();

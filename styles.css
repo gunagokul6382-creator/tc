@@ -133,6 +133,56 @@ body {
   flex-wrap: wrap;
 }
 
+.hero-message-block {
+  margin: 0.9rem 0 0.5rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgba(7, 28, 17, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.thirukkural-quote {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffe67b;
+  line-height: 1.55;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.farm-name {
+  margin: 0.26rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.farm-name span {
+  color: #a8f3c8;
+}
+
+.farm-description {
+  margin: 0.7rem 0 0;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.kurippu-note {
+  margin: 0.72rem 0 0;
+  padding: 0.62rem 0.72rem;
+  border-radius: 10px;
+  background: rgba(255, 223, 69, 0.18);
+  border: 1px solid rgba(255, 223, 69, 0.6);
+  color: #fff8d1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.kurippu-note strong {
+  color: #ffd84f;
+}
+
 .hero-brand-image {
   margin-top: 0.9rem;
   width: min(240px, 100%);
@@ -141,6 +191,18 @@ body {
   overflow: hidden;
   border: 2px solid rgba(0, 0, 0, 0.75);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.hero-brand-image::after {
+  content: "";
+  position: absolute;
+  left: 34%;
+  bottom: 11%;
+  width: 34%;
+  height: 21%;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #0b5f43 0%, #0a5a3f 100%);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
 }
 
 .hero-brand-image img {
@@ -337,12 +399,83 @@ body {
   margin-bottom: 0;
 }
 
+.customer-dashboard,
+.owner-dashboard {
+  grid-column: span 2;
+}
+
+.order-card-list {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.65rem;
+}
+
+.order-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.7rem;
+}
+
+.order-card p {
+  margin: 0.2rem 0;
+  font-size: 0.9rem;
+}
+
+.order-items {
+  font-size: 0.86rem;
+  opacity: 0.95;
+}
+
+.status-pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.16rem 0.58rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.status-pending {
+  background: rgba(234, 189, 69, 0.2);
+  border: 1px solid rgba(234, 189, 69, 0.55);
+  color: #ffe8a9;
+}
+
+.status-delivering {
+  background: rgba(48, 189, 255, 0.16);
+  border: 1px solid rgba(48, 189, 255, 0.5);
+  color: #bcf0ff;
+}
+
+.status-delivered {
+  background: rgba(60, 204, 136, 0.2);
+  border: 1px solid rgba(60, 204, 136, 0.52);
+  color: #c6ffe2;
+}
+
+.owner-order-actions {
+  margin-top: 0.55rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.72rem;
+  font-size: 0.83rem;
+}
+
 @media (max-width: 900px) {
   .container {
     grid-template-columns: 1fr;
   }
 
   .hero {
+    grid-column: span 1;
+  }
+
+  .customer-dashboard,
+  .owner-dashboard {
     grid-column: span 1;
   }
 }

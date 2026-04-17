@@ -33,14 +33,25 @@
 
   <main class="container">
     <section class="hero">
-      <h2>Order Fresh Dairy Online</h2>
+      <h2>Order Fresh Dairy Products for Online</h2>
       <p>Milk, Ghee, Butter, and Paneer delivered to your live location.</p>
+      <div class="hero-message-block">
+        <p class="thirukkural-quote">"உழுதுண்டு வாழ்வாரே வாழ்வார்மற் றெல்லாம் தொழுதுண்டு பின்செல் பவர்"</p>
+        <p class="farm-name"><span>பண்ணை பெயர்:</span> சோழாஸ் டையரி</p>
+        <p class="farm-name"><span>Farm Name:</span> Cholas Diary Farm</p>
+        <p class="farm-description">
+          டெல்டா மக்களின் பேராதரவுடன் சோழதேசத்தின் மண்ணின் மைந்தர்களால் தொடங்கப்பட்டு சிறந்த முறையில் சுத்தமாகவும், சுகாதாரமாகவும் எங்களிடம் A1 பால், A2 பால், A1 நெய், A2 நெய் மற்றும் வெண்ணெய் கிடைக்கும்.
+        </p>
+        <p class="kurippu-note">
+          <strong>குறிப்பு:</strong> (எங்களிடம் பால் மற்றும் நெய்யின் தரம் மற்றும் தன்மை மாறாமல் பாதுகாக்க கண்ணாடி பாட்டில்களில் நிரப்பி விற்பனை செய்யப்படும்.)
+        </p>
+      </div>
       <div class="hero-cta">
         <button id="continueGuest" class="btn btn-primary">Continue as Guest</button>
         <button id="shareLocation" class="btn btn-outline">Share Live Location</button>
       </div>
       <div class="hero-brand-image">
-        <img src="./assets/milk-brand.png" alt="GSG Milk Brand" />
+        <img src="./assets/milk-brand.png?v=20260415-1441" alt="GSG Milk Brand" />
         <span class="gsg-stamp">GSG</span>
       </div>
       <p class="small-text" id="authStatus">You are browsing as a guest.</p>
@@ -70,11 +81,27 @@
         <p><strong>Status:</strong> <span id="deliveryStatus">Waiting for order...</span></p>
       </div>
     </section>
+
+    <section class="customer-dashboard">
+      <h3>Customer Dashboard</h3>
+      <p id="customerDashboardStatus" class="small-text">Login செய்து order history பார்க்கலாம்.</p>
+      <div id="customerCurrentOrder" class="order-card-list"></div>
+      <h4>My Order History</h4>
+      <div id="customerOrderHistory" class="order-card-list"></div>
+    </section>
+
+    <section id="ownerDashboard" class="owner-dashboard hidden">
+      <h3>Owner Dashboard</h3>
+      <p class="small-text">All incoming orders with live location, customer details, and delivery status.</p>
+      <div id="ownerOrdersList" class="order-card-list"></div>
+    </section>
   </main>
 
   <div id="authModal" class="modal hidden">
     <div class="modal-content">
       <h3>Customer Login / Register</h3>
+      <label for="customerLoginId">Login ID</label>
+      <input type="text" id="customerLoginId" placeholder="Create or enter login id" />
       <label for="customerName">Name</label>
       <input type="text" id="customerName" placeholder="Enter your name" />
       <label for="customerPhone">Mobile Number</label>
@@ -93,6 +120,7 @@
       <label for="ownerPassword">Owner Password</label>
       <input type="password" id="ownerPassword" placeholder="Enter owner password" />
       <button id="unlockOwner" class="btn btn-primary full">Unlock Owner Access</button>
+      <button id="openOwnerDashboard" class="btn btn-outline full hidden">Open Owner Dashboard</button>
 
       <div id="ownerControls" class="hidden owner-controls">
         <h4>Edit Product Prices</h4>
