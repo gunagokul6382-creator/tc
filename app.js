@@ -7,7 +7,7 @@ const products = [
 
 const OWNER_LOGIN_ID = "gsowner";
 const OWNER_PASSWORD = "gsg@owner";
-const OWNER_CONTACT_NUMBER = "+91 90000 12345";
+let OWNER_CONTACT_NUMBER = localStorage.getItem("cholasOwnerContact") || "+91 90000 12345";
 const OWNER_BASE_LOCATION = { latitude: 10.7867, longitude: 79.1378 };
 
 const savedProducts = JSON.parse(localStorage.getItem("cholasProducts")) || [];
@@ -69,17 +69,21 @@ function formatDateTime(isoValue) {
 }
 
 function getStatusClass(status) {
+  if (status === "completed") return "status-completed";
   if (status === "delivered") return "status-delivered";
   if (status === "cancelled") return "status-cancelled";
+  if (status === "accepted") return "status-accepted";
   if (status === "delivering") return "status-delivering";
   return "status-pending";
 }
 
 function getStatusLabel(status) {
+  if (status === "completed") return "Order Completed";
   if (status === "delivered") return "Delivered";
   if (status === "cancelled") return "Cancelled";
+  if (status === "accepted") return "Order Accepted";
   if (status === "delivering") return "Out for delivery";
-  return "Order confirmed";
+  return "Order Placed";
 }
 
 function getCustomerOrders() {
@@ -90,7 +94,7 @@ function getCustomerOrders() {
 }
 
 function getActiveOrderForCustomer() {
-  return getCustomerOrders().find((order) => order.status !== "delivered" && order.status !== "cancelled") || null;
+  return getCustomerOrders().find((order) => !["delivered", "cancelled", "completed"].includes(order.status)) || null;
 }
 
 function updateAuthInfo() {
@@ -234,8 +238,12 @@ function renderOwnerOrders() {
         <p><strong>Total:</strong> Rs. ${order.total}</p>
         <p><strong>Time:</strong> ${formatDateTime(order.createdAt)}</p>
         ${
-          order.status !== "delivered"
-            ? `<div class="owner-order-actions"><button class="btn btn-primary btn-sm" onclick="markOrderDelivered('${order.id}')">Mark Delivered</button></div>`
+          order.status !== "delivered" && order.status !== "completed" && order.status !== "cancelled"
+            ? `<div class="owner-order-actions">
+                 ${order.status === "pending" ? `<button class="btn btn-success btn-sm" onclick="acceptOrder('${order.id}')">Accept Order</button>` : ''}
+                 ${["accepted", "delivering"].includes(order.status) ? `<button class="btn btn-primary btn-sm" onclick="completeOrder('${order.id}')">Mark Completed</button>` : ''}
+                 ${order.status === "accepted" ? `<button class="btn btn-outline btn-sm" onclick="startDelivery('${order.id}')">Start Delivery</button>` : ''}
+               </div>`
             : ""
         }
       </div>
@@ -322,6 +330,12 @@ function unlockOwnerAccess() {
 }
 
 function renderOwnerPrices() {
+  // Set owner mobile number
+  const ownerMobileInput = document.getElementById("ownerMobileNumber");
+  if (ownerMobileInput) {
+    ownerMobileInput.value = OWNER_CONTACT_NUMBER;
+  }
+  
   ownerPriceList.innerHTML = state.products
     .map(
       (item) => `
@@ -334,12 +348,23 @@ function renderOwnerPrices() {
     .join("");
 }
 
-function saveOwnerPrices() {
+function saveOwnerSettings() {
   if (!state.ownerUnlocked) {
     alert("Unlock owner access first.");
     return;
   }
 
+  // Save owner mobile number
+  const ownerMobileInput = document.getElementById("ownerMobileNumber");
+  if (ownerMobileInput) {
+    const newMobile = ownerMobileInput.value.trim();
+    if (newMobile) {
+      OWNER_CONTACT_NUMBER = newMobile;
+      localStorage.setItem("cholasOwnerContact", OWNER_CONTACT_NUMBER);
+    }
+  }
+
+  // Save product prices
   state.products = state.products.map((item) => {
     const input = document.getElementById(`owner-price-${item.id}`);
     const newPrice = Number(input.value);
@@ -349,7 +374,7 @@ function saveOwnerPrices() {
   localStorage.setItem("cholasProducts", JSON.stringify(state.products));
   renderProducts();
   renderCart();
-  alert("Prices updated successfully.");
+  alert("Owner settings updated successfully.");
 }
 
 function generateOneDaySalesPdf() {
@@ -464,6 +489,11 @@ function openOrderConfirmModal() {
     )
     .join("");
   orderConfirmTotal.textContent = `Rs. ${total}`;
+  
+  // Pre-fill mobile number from customer profile
+  const phoneInput = document.getElementById("orderCustomerPhone");
+  phoneInput.value = state.customer.phone || "";
+  
   orderConfirmLocationStatus.textContent = state.lastLocation
     ? `Location shared: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`
     : "Location not shared yet. Please tap Share Location.";
@@ -480,6 +510,14 @@ function confirmOrderFromModal() {
     return;
   }
 
+  const phoneInput = document.getElementById("orderCustomerPhone");
+  const customerPhone = phoneInput.value.trim();
+  
+  if (!customerPhone) {
+    alert("Please enter your mobile number for delivery updates.");
+    return;
+  }
+
   const total = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const nowIso = new Date().toISOString();
   const order = {
@@ -487,21 +525,34 @@ function confirmOrderFromModal() {
     createdAt: nowIso,
     customerLoginId: state.customer.loginId,
     customerName: state.customer.name,
-    customerPhone: state.customer.phone,
+    customerPhone: customerPhone,
     location: { ...state.lastLocation },
     items: state.cart.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
     total,
-    status: "delivering",
+    status: "pending", // Changed from "delivering" to "pending"
     deliveredAt: null,
+    acceptedAt: null,
+    completedAt: null,
   };
 
   state.orders.push(order);
   saveOrders();
 
-  deliveryStatus.textContent = `Order ${order.id} confirmed. Delivery partner heading to live location.`;
+  // Update customer profile with new phone number
+  if (customerPhone !== state.customer.phone) {
+    state.customer.phone = customerPhone;
+    localStorage.setItem("cholasCustomer", JSON.stringify(state.customer));
+    updateAuthInfo();
+  }
+
+  deliveryStatus.textContent = `Order ${order.id} placed successfully. Waiting for owner confirmation.`;
   alert(
-    `Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}\nOwner Contact: ${OWNER_CONTACT_NUMBER}`
+    `Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}\nStatus: Waiting for confirmation\n\nOwner will contact you at ${OWNER_CONTACT_NUMBER} once order is accepted.`
   );
+  
+  // Show notification to owner (in a real app, this would send SMS/email)
+  showOwnerNotification(`New order received: ${order.id} from ${order.customerName}`);
+  
   state.cart = [];
   closeOrderConfirmModal();
   renderCart();
@@ -552,6 +603,105 @@ function cancelOrder(orderId) {
   deliveryStatus.textContent = `Order ${order.id} cancelled.`;
 }
 
+function showOwnerNotification(message) {
+  // In a real app, this would send SMS/email to owner
+  // For now, we'll show a browser notification if permitted
+  if (Notification.permission === "granted") {
+    new Notification("GS Cholas Diary - New Order", {
+      body: message,
+      icon: "./assets/milk-brand.png"
+    });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        new Notification("GS Cholas Diary - New Order", {
+          body: message,
+          icon: "./assets/milk-brand.png"
+        });
+      }
+    });
+  }
+  
+  // Also show in console for debugging
+  console.log("Owner Notification:", message);
+}
+
+function acceptOrder(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order) return;
+  
+  if (order.status !== "pending") {
+    alert("Order is not in pending status.");
+    return;
+  }
+  
+  const confirmed = window.confirm(`Accept order ${order.id} from ${order.customerName}?`);
+  if (!confirmed) {
+    return;
+  }
+
+  order.status = "accepted";
+  order.acceptedAt = new Date().toISOString();
+  saveOrders();
+  renderOwnerOrders();
+  renderCustomerOrders();
+  
+  // Send SMS to customer (in real app)
+  alert(`Order ${order.id} accepted!\nCustomer ${order.customerName} will be notified at ${order.customerPhone}\n\nMessage: "Your order ${order.id} is accepted. Owner contact: ${OWNER_CONTACT_NUMBER}"`);
+  
+  if (state.customer?.loginId === order.customerLoginId) {
+    deliveryStatus.textContent = `Order ${order.id} accepted by owner. Contact: ${OWNER_CONTACT_NUMBER}`;
+  }
+}
+
+function completeOrder(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order) return;
+  
+  if (!["accepted", "delivering"].includes(order.status)) {
+    alert("Order must be accepted or out for delivery to mark as completed.");
+    return;
+  }
+  
+  const confirmed = window.confirm(`Mark order ${order.id} as completed?`);
+  if (!confirmed) {
+    return;
+  }
+
+  order.status = "completed";
+  order.completedAt = new Date().toISOString();
+  saveOrders();
+  renderOwnerOrders();
+  renderCustomerOrders();
+  
+  alert(`Order ${order.id} marked as completed!`);
+  
+  if (state.customer?.loginId === order.customerLoginId) {
+    deliveryStatus.textContent = `Order ${order.id} completed successfully!`;
+  }
+}
+
+function startDelivery(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order) return;
+  
+  if (order.status !== "accepted") {
+    alert("Order must be accepted first.");
+    return;
+  }
+  
+  order.status = "delivering";
+  saveOrders();
+  renderOwnerOrders();
+  renderCustomerOrders();
+  
+  alert(`Delivery started for order ${order.id}!`);
+  
+  if (state.customer?.loginId === order.customerLoginId) {
+    deliveryStatus.textContent = `Order ${order.id} is out for delivery!`;
+  }
+}
+
 function showRouteInApp(orderId) {
   const order = state.orders.find((entry) => entry.id === orderId);
   if (!order?.location) {
@@ -597,7 +747,7 @@ document.getElementById("placeOrder").addEventListener("click", openOrderConfirm
 document.getElementById("openOwnerMenu").addEventListener("click", openOwnerModal);
 document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerModal);
 document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
-document.getElementById("savePrices").addEventListener("click", saveOwnerPrices);
+document.getElementById("saveOwnerSettings").addEventListener("click", saveOwnerSettings);
 document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
 document.getElementById("orderShareLocationBtn").addEventListener("click", startLocationShare);
 document.getElementById("orderFinalConfirmBtn").addEventListener("click", confirmOrderFromModal);
@@ -611,6 +761,9 @@ window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.markOrderDelivered = markOrderDelivered;
 window.cancelOrder = cancelOrder;
+window.acceptOrder = acceptOrder;
+window.completeOrder = completeOrder;
+window.startDelivery = startDelivery;
 window.showRouteInApp = showRouteInApp;
 
 renderProducts();

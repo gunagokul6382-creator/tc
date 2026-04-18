@@ -125,10 +125,15 @@
       <button id="openOwnerDashboard" class="btn btn-outline full hidden">Open Owner Dashboard</button>
 
       <div id="ownerControls" class="hidden owner-controls">
+        <h4>Owner Settings</h4>
+        <div class="form-group">
+          <label for="ownerMobileNumber">Owner Mobile Number</label>
+          <input type="tel" id="ownerMobileNumber" placeholder="Enter owner mobile number" />
+        </div>
         <h4>Edit Product Prices</h4>
         <div id="ownerPriceList"></div>
         <div class="modal-actions">
-          <button id="savePrices" class="btn btn-primary">Save Prices</button>
+          <button id="saveOwnerSettings" class="btn btn-primary">Save Settings</button>
           <button id="downloadSalesPdf" class="btn btn-light">One Day Sales PDF</button>
         </div>
       </div>
@@ -145,6 +150,10 @@
       <p class="small-text">Items, total and live location details check செய்து confirm பண்ணவும்.</p>
       <div id="orderConfirmItems" class="order-confirm-items"></div>
       <p><strong>Total:</strong> <span id="orderConfirmTotal">Rs. 0</span></p>
+      <div class="form-group">
+        <label for="orderCustomerPhone">Mobile Number (for delivery updates)</label>
+        <input type="tel" id="orderCustomerPhone" placeholder="Enter your mobile number" value="" />
+      </div>
       <p id="orderConfirmLocationStatus" class="small-text">Location not shared yet.</p>
       <div class="modal-actions">
         <button id="orderShareLocationBtn" class="btn btn-outline">Share Location</button>

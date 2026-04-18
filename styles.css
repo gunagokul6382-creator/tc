@@ -248,13 +248,40 @@ body {
   color: #fff;
 }
 
-.btn-danger {
-  background: #dc3545;
+.btn-success {
+  background: #16a34a;
   color: #fff;
 }
 
-.btn-danger:hover {
-  background: #c82333;
+.btn-success:hover {
+  background: #15803d;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #f4f4f4;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4f4f4;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #0f8d4e;
+  box-shadow: 0 0 0 2px rgba(15, 141, 78, 0.2);
 }
 
 .grid {
@@ -457,10 +484,16 @@ body {
   color: #bcf0ff;
 }
 
-.status-delivered {
-  background: rgba(60, 204, 136, 0.2);
-  border: 1px solid rgba(60, 204, 136, 0.52);
-  color: #c6ffe2;
+.status-completed {
+  background: rgba(34, 197, 94, 0.2);
+  border: 1px solid rgba(34, 197, 94, 0.52);
+  color: #16a34a;
+}
+
+.status-accepted {
+  background: rgba(251, 191, 36, 0.2);
+  border: 1px solid rgba(251, 191, 36, 0.52);
+  color: #d97706;
 }
 
 .status-cancelled {
