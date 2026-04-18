@@ -118,6 +118,13 @@ function updateAuthInfo() {
 }
 
 function renderProducts() {
+  if (!productGrid) {
+    console.error("productGrid element not found - cannot render products");
+    return;
+  }
+
+  console.log("Rendering", state.products.length, "products");
+
   productGrid.innerHTML = state.products
     .map(
       (item) => `
@@ -907,85 +914,89 @@ function showRouteInApp(orderId) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Assign DOM elements after DOM is loaded
-  productGrid = document.getElementById("productGrid");
-  cartItems = document.getElementById("cartItems");
-  cartTotal = document.getElementById("cartTotal");
-  authStatus = document.getElementById("authStatus");
-  deliveryName = document.getElementById("deliveryName");
-  deliveryStatus = document.getElementById("deliveryStatus");
-  locationStatus = document.getElementById("locationStatus");
-  authModal = document.getElementById("authModal");
-  ownerModal = document.getElementById("ownerModal");
-  ownerControls = document.getElementById("ownerControls");
-  ownerPriceList = document.getElementById("ownerPriceList");
-  customerDashboardStatus = document.getElementById("customerDashboardStatus");
-  customerCurrentOrder = document.getElementById("customerCurrentOrder");
-  customerOrderHistory = document.getElementById("customerOrderHistory");
-  ownerDashboard = document.getElementById("ownerDashboard");
-  ownerOrdersList = document.getElementById("ownerOrdersList");
-  openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
-  orderConfirmModal = document.getElementById("orderConfirmModal");
-  orderConfirmItems = document.getElementById("orderConfirmItems");
-  orderConfirmTotal = document.getElementById("orderConfirmTotal");
-  orderConfirmLocationStatus = document.getElementById("orderConfirmLocationStatus");
-
   try {
-    if (window.L) {
-      map = L.map("map").setView([10.7867, 79.1378], 12);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
-      locationMarker = L.marker([10.7867, 79.1378]).addTo(map);
-      locationMarker.bindPopup("Delivery will track customer live location.");
+    // Assign DOM elements after DOM is loaded
+    productGrid = document.getElementById("productGrid");
+    cartItems = document.getElementById("cartItems");
+    cartTotal = document.getElementById("cartTotal");
+    authStatus = document.getElementById("authStatus");
+    deliveryName = document.getElementById("deliveryName");
+    deliveryStatus = document.getElementById("deliveryStatus");
+    locationStatus = document.getElementById("locationStatus");
+    authModal = document.getElementById("authModal");
+    ownerModal = document.getElementById("ownerModal");
+    ownerControls = document.getElementById("ownerControls");
+    ownerPriceList = document.getElementById("ownerPriceList");
+    customerDashboardStatus = document.getElementById("customerDashboardStatus");
+    customerCurrentOrder = document.getElementById("customerCurrentOrder");
+    customerOrderHistory = document.getElementById("customerOrderHistory");
+    ownerDashboard = document.getElementById("ownerDashboard");
+    ownerOrdersList = document.getElementById("ownerOrdersList");
+    openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
+    orderConfirmModal = document.getElementById("orderConfirmModal");
+    orderConfirmItems = document.getElementById("orderConfirmItems");
+    orderConfirmTotal = document.getElementById("orderConfirmTotal");
+    orderConfirmLocationStatus = document.getElementById("orderConfirmLocationStatus");
+
+    try {
+      if (window.L) {
+        map = L.map("map").setView([10.7867, 79.1378], 12);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+        locationMarker = L.marker([10.7867, 79.1378]).addTo(map);
+        locationMarker.bindPopup("Delivery will track customer live location.");
+      }
+    } catch (error) {
+        console.warn("Map initialization failed:", error);
     }
-  } catch (error) {
-      console.warn("Map initialization failed:", error);
-  }
 
-  if (state.lastLocation && map && locationMarker && locationStatus) {
-    locationMarker.setLatLng([state.lastLocation.latitude, state.lastLocation.longitude]);
-    map.setView([state.lastLocation.latitude, state.lastLocation.longitude], 14);
-    locationStatus.textContent = `Last known location: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`;
-  }
+    if (state.lastLocation && map && locationMarker && locationStatus) {
+      locationMarker.setLatLng([state.lastLocation.latitude, state.lastLocation.longitude]);
+      map.setView([state.lastLocation.latitude, state.lastLocation.longitude], 14);
+      locationStatus.textContent = `Last known location: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`;
+    }
 
-  document.getElementById("openAuthModal").addEventListener("click", openAuthModal);
-  document.getElementById("closeModal").addEventListener("click", closeAuthModal);
-  document.getElementById("saveCustomer").addEventListener("click", saveCustomerProfile);
-  document.getElementById("continueGuest").addEventListener("click", () => {
-    state.customer = null;
-    localStorage.removeItem("cholasCustomer");
+    document.getElementById("openAuthModal").addEventListener("click", openAuthModal);
+    document.getElementById("closeModal").addEventListener("click", closeAuthModal);
+    document.getElementById("saveCustomer").addEventListener("click", saveCustomerProfile);
+    document.getElementById("continueGuest").addEventListener("click", () => {
+      state.customer = null;
+      localStorage.removeItem("cholasCustomer");
+      updateAuthInfo();
+      renderCustomerOrders();
+    });
+    document.getElementById("shareLocation").addEventListener("click", startLocationShare);
+    document.getElementById("placeOrder").addEventListener("click", openOrderConfirmModal);
+    document.getElementById("openOwnerMenu").addEventListener("click", openOwnerModal);
+    document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerModal);
+    document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
+    document.getElementById("saveOwnerSettings").addEventListener("click", saveOwnerSettings);
+    document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
+    document.getElementById("orderFinalConfirmBtn").addEventListener("click", confirmOrderFromModal);
+    document.getElementById("orderConfirmCloseBtn").addEventListener("click", closeOrderConfirmModal);
+    openOwnerDashboardBtn.addEventListener("click", () => {
+      ownerDashboard.classList.remove("hidden");
+      ownerModal.classList.add("hidden");
+    });
+
+    window.addToCart = addToCart;
+    window.removeFromCart = removeFromCart;
+    window.markOrderDelivered = markOrderDelivered;
+    window.cancelOrder = cancelOrder;
+    window.acceptOrder = acceptOrder;
+    window.completeOrder = completeOrder;
+    window.confirmOrder = confirmOrder;
+    window.generateSalesReport = generateSalesReport;
+    window.startDelivery = startDelivery;
+    window.startLocationShare = startLocationShare;
+    window.stopLocationShare = stopLocationShare;
+    window.showRouteInApp = showRouteInApp;
+
+    renderProducts();
+    renderCart();
     updateAuthInfo();
     renderCustomerOrders();
-  });
-  document.getElementById("shareLocation").addEventListener("click", startLocationShare);
-  document.getElementById("placeOrder").addEventListener("click", openOrderConfirmModal);
-  document.getElementById("openOwnerMenu").addEventListener("click", openOwnerModal);
-  document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerModal);
-  document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
-  document.getElementById("saveOwnerSettings").addEventListener("click", saveOwnerSettings);
-  document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
-  document.getElementById("orderFinalConfirmBtn").addEventListener("click", confirmOrderFromModal);
-  document.getElementById("orderConfirmCloseBtn").addEventListener("click", closeOrderConfirmModal);
-  openOwnerDashboardBtn.addEventListener("click", () => {
-    ownerDashboard.classList.remove("hidden");
-    ownerModal.classList.add("hidden");
-  });
-
-  window.addToCart = addToCart;
-  window.removeFromCart = removeFromCart;
-  window.markOrderDelivered = markOrderDelivered;
-  window.cancelOrder = cancelOrder;
-  window.acceptOrder = acceptOrder;
-  window.completeOrder = completeOrder;
-  window.confirmOrder = confirmOrder;
-  window.generateSalesReport = generateSalesReport;
-  window.startDelivery = startDelivery;
-  window.startLocationShare = startLocationShare;
-  window.stopLocationShare = stopLocationShare;
-  window.showRouteInApp = showRouteInApp;
-
-  renderProducts();
-  renderCart();
-  updateAuthInfo();
-  renderCustomerOrders();
-  renderOwnerOrders();
+    renderOwnerOrders();
+  } catch (error) {
+    console.error("Error in DOMContentLoaded:", error);
+  }
 });
