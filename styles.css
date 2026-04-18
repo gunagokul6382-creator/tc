@@ -13,10 +13,11 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background:
-    linear-gradient(120deg, rgba(4, 67, 35, 0.5), rgba(10, 33, 23, 0.62)),
-    linear-gradient(to top, rgba(7, 48, 28, 0.72) 0 34%, transparent 58%);
-  background-color: #0d2f1d;
+  background-image: url('assets/paddy-field.png?v=20260418');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   opacity: 0.88;
   pointer-events: none;
   z-index: 0;
