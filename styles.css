@@ -107,11 +107,11 @@ body {
 .products,
 .cart,
 .tracking {
-  background: rgba(0, 0, 0, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: #0a0a0a;
+  border: 2px solid #2a7a3c;
   border-radius: 18px;
   padding: 1rem;
-  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.52);
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.68);
   contain: content;
 }
 
@@ -389,8 +389,8 @@ body {
 
 .delivery-panel {
   margin-top: 0.8rem;
-  background: rgba(0, 0, 0, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.20);
+  background: #141414;
+  border: 1px solid #3a7a4c;
   border-radius: 10px;
   padding: 0.9rem;
 }
@@ -459,11 +459,11 @@ body {
 .customer-dashboard,
 .owner-dashboard {
   grid-column: span 2;
-  background: rgba(0, 0, 0, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.30);
+  background: #050505;
+  border: 2px solid #2a7a3c;
   border-radius: 20px;
-  padding: 1rem;
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.64);
+  padding: 1.2rem;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.72);
 }
 
 .customer-dashboard h3,
@@ -481,11 +481,11 @@ body {
 }
 
 .order-card {
-  background: rgba(0, 0, 0, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: #1a1a1a;
+  border: 1px solid #3a7a4c;
   border-radius: 16px;
   padding: 1rem;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10), 0 14px 30px rgba(0, 0, 0, 0.34);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.48);
 }
 
 .order-card p {
