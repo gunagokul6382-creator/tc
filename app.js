@@ -243,6 +243,7 @@ function renderOwnerOrders() {
                  ${order.status === "pending" ? `<button class="btn btn-success btn-sm" onclick="acceptOrder('${order.id}')">Accept Order</button>` : ''}
                  ${["accepted", "delivering"].includes(order.status) ? `<button class="btn btn-primary btn-sm" onclick="completeOrder('${order.id}')">Mark Completed</button>` : ''}
                  ${order.status === "accepted" ? `<button class="btn btn-outline btn-sm" onclick="startDelivery('${order.id}')">Start Delivery</button>` : ''}
+                 <button class="btn btn-outline btn-sm" onclick="confirmOrder('${order.id}')">Order Confirmed</button>
                </div>`
             : ""
         }
@@ -587,9 +588,9 @@ function confirmOrderFromModal() {
   }
 
   deliveryStatus.textContent = `Order ${order.id} placed successfully. Waiting for owner confirmation.`;
-  alert(
-    `Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}\nStatus: Waiting for confirmation\n\nOwner will contact you at ${OWNER_CONTACT_NUMBER} once order is accepted.`
-  );
+  
+  // Customer notification for order placement
+  showCustomerNotification(`Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}\nStatus: Waiting for confirmation\n\nOwner will contact you at ${OWNER_CONTACT_NUMBER} once order is accepted.`);
   
   // Show notification to owner (in a real app, this would send SMS/email)
   showOwnerNotification(`New order received: ${order.id} from ${order.customerName}`);
@@ -601,23 +602,13 @@ function confirmOrderFromModal() {
   renderOwnerOrders();
 }
 
-function markOrderDelivered(orderId) {
+function confirmOrder(orderId) {
   const order = state.orders.find((entry) => entry.id === orderId);
   if (!order) return;
-  const confirmed = window.confirm(`Close order ${order.id} as delivered?`);
-  if (!confirmed) {
-    return;
-  }
-
-  order.status = "delivered";
-  order.deliveredAt = new Date().toISOString();
-  saveOrders();
-  renderOwnerOrders();
-  renderCustomerOrders();
-
-  if (state.customer?.loginId === order.customerLoginId) {
-    deliveryStatus.textContent = `Order ${order.id} delivered successfully.`;
-  }
+  
+  alert(`Order ${order.id} confirmed! Customer ${order.customerName} has been notified.`);
+  // In real app, this would send confirmation SMS to customer
+  showCustomerNotification(`Your order ${order.id} has been confirmed!\nWe will start preparing your order.`);
 }
 
 function cancelOrder(orderId) {
@@ -667,6 +658,29 @@ function showOwnerNotification(message) {
   console.log("Owner Notification:", message);
 }
 
+function showCustomerNotification(message) {
+  // In a real app, this would send SMS/email to customer
+  // For now, we'll show a browser notification if permitted
+  if (Notification.permission === "granted") {
+    new Notification("GS Cholas Dairy - Order Update", {
+      body: message,
+      icon: "./assets/milk-brand.png?v=20260418"
+    });
+  } else if (Notification.permission !== "denied") {
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        new Notification("GS Cholas Dairy - Order Update", {
+          body: message,
+          icon: "./assets/milk-brand.png?v=20260418"
+        });
+      }
+    });
+  }
+  
+  // Also show in console for debugging
+  console.log("Customer Notification:", message);
+}
+
 function acceptOrder(orderId) {
   const order = state.orders.find((entry) => entry.id === orderId);
   if (!order) return;
@@ -689,6 +703,9 @@ function acceptOrder(orderId) {
   
   // Send SMS to customer (in real app)
   alert(`Order ${order.id} accepted!\nCustomer ${order.customerName} will be notified at ${order.customerPhone}\n\nMessage: "Your order ${order.id} is accepted. Owner contact: ${OWNER_CONTACT_NUMBER}"`);
+  
+  // Customer notification for order acceptance
+  showCustomerNotification(`Your order ${order.id} has been accepted!\nOwner contact: ${OWNER_CONTACT_NUMBER}\n\nDelivery will start soon.`);
   
   if (state.customer?.loginId === order.customerLoginId) {
     deliveryStatus.textContent = `Order ${order.id} accepted by owner. Contact: ${OWNER_CONTACT_NUMBER}`;
@@ -716,6 +733,9 @@ function completeOrder(orderId) {
   renderCustomerOrders();
   
   alert(`Order ${order.id} marked as completed!`);
+  
+  // Customer notification for delivery completion
+  showCustomerNotification(`Your order ${order.id} has been delivered successfully!\nThank you for choosing GS Cholas Dairy.`);
   
   if (state.customer?.loginId === order.customerLoginId) {
     deliveryStatus.textContent = `Order ${order.id} completed successfully!`;
@@ -803,6 +823,7 @@ window.markOrderDelivered = markOrderDelivered;
 window.cancelOrder = cancelOrder;
 window.acceptOrder = acceptOrder;
 window.completeOrder = completeOrder;
+window.confirmOrder = confirmOrder;
 window.startDelivery = startDelivery;
 window.startLocationShare = startLocationShare;
 window.stopLocationShare = stopLocationShare;
