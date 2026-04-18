@@ -111,7 +111,7 @@
       <label for="customerName">Name</label>
       <input type="text" id="customerName" placeholder="Enter your name" />
       <label for="customerPhone">Mobile Number</label>
-      <input type="tel" id="customerPhone" placeholder="Enter your mobile number" />
+      <input type="tel" id="customerPhone" placeholder="Enter your mobile number" pattern="[0-9\-\s]{10,15}" />
       <div class="modal-actions">
         <button id="saveCustomer" class="btn btn-primary">Save & Continue</button>
         <button id="closeModal" class="btn btn-light">Close</button>
@@ -134,7 +134,7 @@
         <h4>Owner Settings</h4>
         <div class="form-group">
           <label for="ownerMobileNumber">Owner Mobile Number</label>
-          <input type="tel" id="ownerMobileNumber" placeholder="Enter owner mobile number" />
+          <input type="tel" id="ownerMobileNumber" placeholder="Enter owner mobile number" pattern="[0-9\-\s]{10,15}" />
         </div>
         <h4>Edit Product Prices</h4>
         <div id="ownerPriceList"></div>
@@ -158,7 +158,7 @@
       <p><strong>Total:</strong> <span id="orderConfirmTotal">Rs. 0</span></p>
       <div class="form-group">
         <label for="orderCustomerPhone">Mobile Number (for delivery updates)</label>
-        <input type="tel" id="orderCustomerPhone" placeholder="Enter your mobile number" value="" />
+        <input type="tel" id="orderCustomerPhone" placeholder="Enter your mobile number" value="" pattern="[0-9\-\s]{10,15}" />
       </div>
       <p id="orderConfirmLocationStatus" class="small-text">Getting your location...</p>
       <div class="modal-actions">

@@ -285,6 +285,12 @@ function saveCustomerProfile() {
     return;
   }
 
+  // Validate phone number (should be digits, at least 10 chars, max 15)
+  if (!/^\d{10,15}$/.test(phone.replace(/[-\s]/g, ''))) {
+    alert("Please enter a valid mobile number (10-15 digits).");
+    return;
+  }
+
   state.customer = { loginId, name, phone };
   localStorage.setItem("cholasCustomer", JSON.stringify(state.customer));
   updateAuthInfo();
@@ -547,6 +553,12 @@ function confirmOrderFromModal() {
     return;
   }
 
+  // Validate phone number (should be digits, at least 10 chars, max 15)
+  if (!/^\d{10,15}$/.test(customerPhone.replace(/[-\s]/g, ''))) {
+    alert("Please enter a valid mobile number (10-15 digits).");
+    return;
+  }
+
   const total = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
   const nowIso = new Date().toISOString();
   const order = {
@@ -792,6 +804,8 @@ window.cancelOrder = cancelOrder;
 window.acceptOrder = acceptOrder;
 window.completeOrder = completeOrder;
 window.startDelivery = startDelivery;
+window.startLocationShare = startLocationShare;
+window.stopLocationShare = stopLocationShare;
 window.showRouteInApp = showRouteInApp;
 
 renderProducts();
