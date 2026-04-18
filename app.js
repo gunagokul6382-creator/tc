@@ -425,18 +425,23 @@ function generateOneDaySalesPdf() {
   pdf.save(`gsg-one-day-sales-${today}.pdf`);
 }
 
-function startLocationShare() {
+function startLocationShareForOrder() {
   if (!navigator.geolocation) {
-    alert("Geolocation not supported on this device/browser.");
+    orderConfirmLocationStatus.textContent = "Location not supported on this device.";
     return;
   }
 
   if (state.locationWatcher !== null) {
-    alert("Live location is already sharing.");
+    // Location already being shared, just update the modal
+    if (state.lastLocation) {
+      orderConfirmLocationStatus.textContent = `Location shared: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`;
+      document.getElementById("orderFinalConfirmBtn").disabled = false;
+    }
     return;
   }
 
-  locationStatus.textContent = "Requesting location access...";
+  orderConfirmLocationStatus.textContent = "Requesting location access...";
+  
   state.locationWatcher = navigator.geolocation.watchPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
@@ -455,12 +460,17 @@ function startLocationShare() {
         renderOwnerOrders();
       }
 
+      // Update modal status and enable confirm button
       if (!orderConfirmModal.classList.contains("hidden")) {
         orderConfirmLocationStatus.textContent = `Location shared: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+        document.getElementById("orderFinalConfirmBtn").disabled = false;
       }
     },
     (error) => {
       locationStatus.textContent = `Location error: ${error.message}`;
+      if (!orderConfirmModal.classList.contains("hidden")) {
+        orderConfirmLocationStatus.textContent = `Location error: ${error.message}`;
+      }
     },
     { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
   );
@@ -494,10 +504,16 @@ function openOrderConfirmModal() {
   const phoneInput = document.getElementById("orderCustomerPhone");
   phoneInput.value = state.customer.phone || "";
   
-  orderConfirmLocationStatus.textContent = state.lastLocation
-    ? `Location shared: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`
-    : "Location not shared yet. Please tap Share Location.";
+  // Reset location status and disable confirm button
+  orderConfirmLocationStatus.textContent = "Getting your location...";
+  const confirmBtn = document.getElementById("orderFinalConfirmBtn");
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = "Confirm Order";
+  
   orderConfirmModal.classList.remove("hidden");
+  
+  // Automatically start location sharing
+  startLocationShareForOrder();
 }
 
 function closeOrderConfirmModal() {
@@ -749,7 +765,6 @@ document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerM
 document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
 document.getElementById("saveOwnerSettings").addEventListener("click", saveOwnerSettings);
 document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
-document.getElementById("orderShareLocationBtn").addEventListener("click", startLocationShare);
 document.getElementById("orderFinalConfirmBtn").addEventListener("click", confirmOrderFromModal);
 document.getElementById("orderConfirmCloseBtn").addEventListener("click", closeOrderConfirmModal);
 openOwnerDashboardBtn.addEventListener("click", () => {
