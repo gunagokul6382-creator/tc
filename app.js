@@ -124,9 +124,8 @@ function renderProducts() {
       (item) => `
       <article class="card">
         <div class="image-container">
-          <img class="product-image lazy"
-               data-src="${item.image}"
-               src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjExMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjNGM0YzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+"
+          <img class="product-image"
+               src="${item.image}"
                alt="${item.name}"
                width="100"
                height="110"
@@ -147,8 +146,7 @@ function renderProducts() {
     productGrid.innerHTML = '<p style="color: red; padding: 1rem;">No products loaded. Please refresh the page or check console for errors.</p>';
   }
 
-  // Initialize lazy loading after images are added to DOM
-  lazyLoadImages();
+  // Lazy loading removed for now to ensure images load
 }
 
 function renderCart() {
