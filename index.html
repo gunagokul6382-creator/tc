@@ -37,8 +37,8 @@
       <p>Milk, Ghee, Butter, and Paneer delivered to your live location.</p>
       <div class="hero-message-block">
         <p class="thirukkural-quote">"உழுதுண்டு வாழ்வாரே வாழ்வார்மற் றெல்லாம் தொழுதுண்டு பின்செல் பவர்"</p>
-        <p class="farm-name"><span>பண்ணை பெயர்:</span> சோழாஸ் டையரி</p>
-        <p class="farm-name"><span>Farm Name:</span> Cholas Diary Farm</p>
+        <p class="farm-name"><span>பண்ணை பெயர்:</span> ஜிஎஸ் சோழாஸ் டையரி பண்ணை</p>
+        <p class="farm-name"><span>Farm Name:</span> GS Cholas Diary Farm</p>
         <p class="farm-description">
           டெல்டா மக்களின் பேராதரவுடன் சோழதேசத்தின் மண்ணின் மைந்தர்களால் தொடங்கப்பட்டு சிறந்த முறையில் சுத்தமாகவும், சுகாதாரமாகவும் எங்களிடம் A1 பால், A2 பால், A1 நெய், A2 நெய் மற்றும் வெண்ணெய் கிடைக்கும்.
         </p>
@@ -116,7 +116,9 @@
   <div id="ownerModal" class="modal hidden">
     <div class="modal-content">
       <h3>Owner Panel</h3>
-      <p class="small-text">Only owner can edit prices and download sales PDF.</p>
+      <p class="small-text">Only owner can edit prices, view live customer orders and download sales PDF.</p>
+      <label for="ownerLoginId">Owner Login ID</label>
+      <input type="text" id="ownerLoginId" placeholder="Enter owner login id" />
       <label for="ownerPassword">Owner Password</label>
       <input type="password" id="ownerPassword" placeholder="Enter owner password" />
       <button id="unlockOwner" class="btn btn-primary full">Unlock Owner Access</button>
@@ -133,6 +135,21 @@
 
       <div class="modal-actions">
         <button id="closeOwnerModal" class="btn btn-light">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="orderConfirmModal" class="modal hidden">
+    <div class="modal-content">
+      <h3>Confirm Your Order</h3>
+      <p class="small-text">Items, total and live location details check செய்து confirm பண்ணவும்.</p>
+      <div id="orderConfirmItems" class="order-confirm-items"></div>
+      <p><strong>Total:</strong> <span id="orderConfirmTotal">Rs. 0</span></p>
+      <p id="orderConfirmLocationStatus" class="small-text">Location not shared yet.</p>
+      <div class="modal-actions">
+        <button id="orderShareLocationBtn" class="btn btn-outline">Share Location</button>
+        <button id="orderFinalConfirmBtn" class="btn btn-primary">Confirm Order</button>
+        <button id="orderConfirmCloseBtn" class="btn btn-light">Close</button>
       </div>
     </div>
   </div>

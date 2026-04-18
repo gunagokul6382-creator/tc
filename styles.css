@@ -248,6 +248,15 @@ body {
   color: #fff;
 }
 
+.btn-danger {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -454,15 +463,44 @@ body {
   color: #c6ffe2;
 }
 
+.status-cancelled {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid rgba(220, 53, 69, 0.52);
+  color: #ff9db3;
+}
+
 .owner-order-actions {
   margin-top: 0.55rem;
   display: flex;
   justify-content: flex-end;
 }
 
+.order-card-actions {
+  margin-top: 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .btn-sm {
   padding: 0.4rem 0.72rem;
   font-size: 0.83rem;
+}
+
+.order-confirm-items {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.65rem 0;
+}
+
+.order-confirm-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.06);
 }
 
 @media (max-width: 900px) {

@@ -5,7 +5,10 @@ const products = [
   { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "./assets/butter.png" },
 ];
 
+const OWNER_LOGIN_ID = "gsowner";
 const OWNER_PASSWORD = "gsg@owner";
+const OWNER_CONTACT_NUMBER = "+91 90000 12345";
+const OWNER_BASE_LOCATION = { latitude: 10.7867, longitude: 79.1378 };
 
 const savedProducts = JSON.parse(localStorage.getItem("cholasProducts")) || [];
 const mergedProducts =
@@ -45,6 +48,10 @@ const customerOrderHistory = document.getElementById("customerOrderHistory");
 const ownerDashboard = document.getElementById("ownerDashboard");
 const ownerOrdersList = document.getElementById("ownerOrdersList");
 const openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
+const orderConfirmModal = document.getElementById("orderConfirmModal");
+const orderConfirmItems = document.getElementById("orderConfirmItems");
+const orderConfirmTotal = document.getElementById("orderConfirmTotal");
+const orderConfirmLocationStatus = document.getElementById("orderConfirmLocationStatus");
 
 const map = L.map("map").setView([10.7867, 79.1378], 12);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
@@ -63,12 +70,14 @@ function formatDateTime(isoValue) {
 
 function getStatusClass(status) {
   if (status === "delivered") return "status-delivered";
+  if (status === "cancelled") return "status-cancelled";
   if (status === "delivering") return "status-delivering";
   return "status-pending";
 }
 
 function getStatusLabel(status) {
   if (status === "delivered") return "Delivered";
+  if (status === "cancelled") return "Cancelled";
   if (status === "delivering") return "Out for delivery";
   return "Order confirmed";
 }
@@ -81,7 +90,7 @@ function getCustomerOrders() {
 }
 
 function getActiveOrderForCustomer() {
-  return getCustomerOrders().find((order) => order.status !== "delivered") || null;
+  return getCustomerOrders().find((order) => order.status !== "delivered" && order.status !== "cancelled") || null;
 }
 
 function updateAuthInfo() {
@@ -150,12 +159,18 @@ function renderCustomerOrders() {
     customerCurrentOrder.innerHTML = `<p class="small-text">No active orders right now.</p>`;
     deliveryStatus.textContent = "Waiting for order...";
   } else {
+    const cancelButtonHTML = activeOrder.status !== "delivered" 
+      ? `<div class="order-card-actions"><button class="btn btn-danger btn-sm" onclick="cancelOrder('${activeOrder.id}')">Cancel Order</button></div>`
+      : '';
     customerCurrentOrder.innerHTML = `
       <div class="order-card">
         <p><strong>Order ID:</strong> ${activeOrder.id}</p>
         <p><strong>Status:</strong> <span class="status-pill ${getStatusClass(activeOrder.status)}">${getStatusLabel(activeOrder.status)}</span></p>
         <p><strong>Total:</strong> Rs. ${activeOrder.total}</p>
+        <p><strong>Items:</strong> <span class="order-items">${activeOrder.items.map((item) => `${item.name} x ${item.qty}`).join(", ")}</span></p>
+        <p><strong>Owner Contact:</strong> ${OWNER_CONTACT_NUMBER}</p>
         <p><strong>Placed:</strong> ${formatDateTime(activeOrder.createdAt)}</p>
+        ${cancelButtonHTML}
       </div>
     `;
     deliveryStatus.textContent = `Order ${activeOrder.id} - ${getStatusLabel(activeOrder.status)}`;
@@ -197,6 +212,9 @@ function renderOwnerOrders() {
       const locationText = order.location
         ? `${order.location.latitude.toFixed(5)}, ${order.location.longitude.toFixed(5)}`
         : "Not available";
+      const locationMapLink = order.location
+        ? `https://www.google.com/maps?q=${order.location.latitude},${order.location.longitude}`
+        : "";
 
       return `
       <div class="order-card">
@@ -204,6 +222,14 @@ function renderOwnerOrders() {
         <p><strong>Customer:</strong> ${order.customerName} (${order.customerLoginId})</p>
         <p><strong>Phone:</strong> ${order.customerPhone}</p>
         <p><strong>Location:</strong> ${locationText}</p>
+        ${
+          locationMapLink
+            ? `<p><a href="${locationMapLink}" target="_blank" rel="noopener noreferrer">Open live location in map</a></p>
+               <div class="owner-order-actions">
+                 <button class="btn btn-outline btn-sm" onclick="showRouteInApp('${order.id}')">Show Route In App</button>
+               </div>`
+            : ""
+        }
         <p><strong>Items:</strong> <span class="order-items">${order.items.map((item) => `${item.name} x ${item.qty}`).join(", ")}</span></p>
         <p><strong>Total:</strong> Rs. ${order.total}</p>
         <p><strong>Time:</strong> ${formatDateTime(order.createdAt)}</p>
@@ -280,9 +306,10 @@ function closeOwnerModal() {
 }
 
 function unlockOwnerAccess() {
+  const enteredLoginId = document.getElementById("ownerLoginId").value.trim().toLowerCase();
   const enteredPassword = document.getElementById("ownerPassword").value.trim();
-  if (enteredPassword !== OWNER_PASSWORD) {
-    alert("Wrong owner password.");
+  if (enteredLoginId !== OWNER_LOGIN_ID || enteredPassword !== OWNER_PASSWORD) {
+    alert("Wrong owner login id or password.");
     return;
   }
 
@@ -402,6 +429,10 @@ function startLocationShare() {
         saveOrders();
         renderOwnerOrders();
       }
+
+      if (!orderConfirmModal.classList.contains("hidden")) {
+        orderConfirmLocationStatus.textContent = `Location shared: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+      }
     },
     (error) => {
       locationStatus.textContent = `Location error: ${error.message}`;
@@ -410,7 +441,7 @@ function startLocationShare() {
   );
 }
 
-function placeOrder() {
+function openOrderConfirmModal() {
   if (!state.customer?.loginId) {
     alert("Please login/register with login id before placing order.");
     return;
@@ -421,8 +452,31 @@ function placeOrder() {
     return;
   }
 
+  const total = state.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  orderConfirmItems.innerHTML = state.cart
+    .map(
+      (item) => `
+        <div class="order-confirm-row">
+          <span>${item.name} x ${item.qty}</span>
+          <span>Rs. ${item.price * item.qty}</span>
+        </div>
+      `
+    )
+    .join("");
+  orderConfirmTotal.textContent = `Rs. ${total}`;
+  orderConfirmLocationStatus.textContent = state.lastLocation
+    ? `Location shared: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`
+    : "Location not shared yet. Please tap Share Location.";
+  orderConfirmModal.classList.remove("hidden");
+}
+
+function closeOrderConfirmModal() {
+  orderConfirmModal.classList.add("hidden");
+}
+
+function confirmOrderFromModal() {
   if (!state.lastLocation) {
-    alert("Please share live location before placing order.");
+    alert("Please share live location before confirming order.");
     return;
   }
 
@@ -445,8 +499,11 @@ function placeOrder() {
   saveOrders();
 
   deliveryStatus.textContent = `Order ${order.id} confirmed. Delivery partner heading to live location.`;
-  alert(`Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}`);
+  alert(
+    `Order placed successfully!\nOrder ID: ${order.id}\nTotal: Rs. ${total}\nOwner Contact: ${OWNER_CONTACT_NUMBER}`
+  );
   state.cart = [];
+  closeOrderConfirmModal();
   renderCart();
   renderCustomerOrders();
   renderOwnerOrders();
@@ -455,6 +512,10 @@ function placeOrder() {
 function markOrderDelivered(orderId) {
   const order = state.orders.find((entry) => entry.id === orderId);
   if (!order) return;
+  const confirmed = window.confirm(`Close order ${order.id} as delivered?`);
+  if (!confirmed) {
+    return;
+  }
 
   order.status = "delivered";
   order.deliveredAt = new Date().toISOString();
@@ -465,6 +526,55 @@ function markOrderDelivered(orderId) {
   if (state.customer?.loginId === order.customerLoginId) {
     deliveryStatus.textContent = `Order ${order.id} delivered successfully.`;
   }
+}
+
+function cancelOrder(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order) return;
+  
+  if (order.status === "delivered") {
+    alert("Cannot cancel a delivered order.");
+    return;
+  }
+  
+  const confirmed = window.confirm(`Cancel order ${order.id}? This action cannot be undone.`);
+  if (!confirmed) {
+    return;
+  }
+
+  order.status = "cancelled";
+  order.cancelledAt = new Date().toISOString();
+  saveOrders();
+  renderOwnerOrders();
+  renderCustomerOrders();
+  
+  alert(`Order ${order.id} has been cancelled.`);
+  deliveryStatus.textContent = `Order ${order.id} cancelled.`;
+}
+
+function showRouteInApp(orderId) {
+  const order = state.orders.find((entry) => entry.id === orderId);
+  if (!order?.location) {
+    alert("Customer location not available for this order.");
+    return;
+  }
+
+  const from = [OWNER_BASE_LOCATION.latitude, OWNER_BASE_LOCATION.longitude];
+  const to = [order.location.latitude, order.location.longitude];
+
+  if (window.ownerRouteLine) {
+    map.removeLayer(window.ownerRouteLine);
+  }
+
+  window.ownerRouteLine = L.polyline([from, to], {
+    color: "#1e90ff",
+    weight: 5,
+    opacity: 0.85,
+    dashArray: "8, 8",
+  }).addTo(map);
+
+  L.marker(from).addTo(map).bindPopup("Owner Start Point").openPopup();
+  map.fitBounds(window.ownerRouteLine.getBounds(), { padding: [20, 20] });
 }
 
 if (state.lastLocation) {
@@ -483,12 +593,15 @@ document.getElementById("continueGuest").addEventListener("click", () => {
   renderCustomerOrders();
 });
 document.getElementById("shareLocation").addEventListener("click", startLocationShare);
-document.getElementById("placeOrder").addEventListener("click", placeOrder);
+document.getElementById("placeOrder").addEventListener("click", openOrderConfirmModal);
 document.getElementById("openOwnerMenu").addEventListener("click", openOwnerModal);
 document.getElementById("closeOwnerModal").addEventListener("click", closeOwnerModal);
 document.getElementById("unlockOwner").addEventListener("click", unlockOwnerAccess);
 document.getElementById("savePrices").addEventListener("click", saveOwnerPrices);
 document.getElementById("downloadSalesPdf").addEventListener("click", generateOneDaySalesPdf);
+document.getElementById("orderShareLocationBtn").addEventListener("click", startLocationShare);
+document.getElementById("orderFinalConfirmBtn").addEventListener("click", confirmOrderFromModal);
+document.getElementById("orderConfirmCloseBtn").addEventListener("click", closeOrderConfirmModal);
 openOwnerDashboardBtn.addEventListener("click", () => {
   ownerDashboard.classList.remove("hidden");
   ownerModal.classList.add("hidden");
@@ -497,6 +610,8 @@ openOwnerDashboardBtn.addEventListener("click", () => {
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.markOrderDelivered = markOrderDelivered;
+window.cancelOrder = cancelOrder;
+window.showRouteInApp = showRouteInApp;
 
 renderProducts();
 renderCart();
