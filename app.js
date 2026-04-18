@@ -31,23 +31,10 @@ const state = {
 
 localStorage.setItem("cholasProducts", JSON.stringify(state.products));
 
-const productGrid = document.getElementById("productGrid");
-const cartItems = document.getElementById("cartItems");
-const cartTotal = document.getElementById("cartTotal");
-const authStatus = document.getElementById("authStatus");
-const deliveryName = document.getElementById("deliveryName");
-const deliveryStatus = document.getElementById("deliveryStatus");
-const locationStatus = document.getElementById("locationStatus");
-const authModal = document.getElementById("authModal");
-const ownerModal = document.getElementById("ownerModal");
-const ownerControls = document.getElementById("ownerControls");
-const ownerPriceList = document.getElementById("ownerPriceList");
-const customerDashboardStatus = document.getElementById("customerDashboardStatus");
-const customerCurrentOrder = document.getElementById("customerCurrentOrder");
-const customerOrderHistory = document.getElementById("customerOrderHistory");
-const ownerDashboard = document.getElementById("ownerDashboard");
-const ownerOrdersList = document.getElementById("ownerOrdersList");
-const openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
+// DOM elements - will be assigned when DOM is ready
+let productGrid, cartItems, cartTotal, authStatus, deliveryName, deliveryStatus, locationStatus;
+let authModal, ownerModal, ownerControls, ownerPriceList, customerDashboardStatus;
+let customerCurrentOrder, customerOrderHistory, ownerDashboard, ownerOrdersList, openOwnerDashboardBtn;
 const orderConfirmModal = document.getElementById("orderConfirmModal");
 const orderConfirmItems = document.getElementById("orderConfirmItems");
 const orderConfirmTotal = document.getElementById("orderConfirmTotal");
@@ -64,23 +51,35 @@ function saveOrders() {
 }
 
 function lazyLoadImages() {
+  // Check if IntersectionObserver is supported
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: load all images immediately
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    lazyImages.forEach(img => {
+      img.src = img.dataset.src;
+      img.classList.remove('lazy');
+    });
+    return;
+  }
+
   const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry, index) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         const img = entry.target;
-        // Add small delay to prevent all images loading at once
-        setTimeout(() => {
-          img.src = img.dataset.src;
-          img.classList.remove('lazy');
-          observer.unobserve(img);
-        }, index * 100); // 100ms delay between each image
+        // Load the image
+        img.src = img.dataset.src;
+        img.classList.remove('lazy');
+        // Stop observing this image
+        observer.unobserve(img);
       }
     });
   }, {
-    rootMargin: '50px' // Start loading 50px before image comes into view
+    rootMargin: '50px 0px', // Start loading 50px before image comes into view
+    threshold: 0.01 // Trigger when even 1% of the image is visible
   });
-  
-  const lazyImages = document.querySelectorAll('img.lazy');
+
+  // Observe all lazy images
+  const lazyImages = document.querySelectorAll('img[data-src]');
   lazyImages.forEach(img => imageObserver.observe(img));
 }
 
@@ -131,12 +130,13 @@ function renderProducts() {
       (item) => `
       <article class="card">
         <div class="image-container">
-          <img class="product-image" 
-               src="${item.image}" 
-               alt="${item.name}" 
-               width="100" 
+          <img class="product-image lazy"
+               data-src="${item.image}"
+               src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjExMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjNGM0YzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+"
+               alt="${item.name}"
+               width="100"
                height="110"
-               loading="lazy" 
+               loading="lazy"
                decoding="async"
                onerror="this.src='assets/paddy-field.png'; this.style.border='2px solid red';" />
         </div>
@@ -147,9 +147,9 @@ function renderProducts() {
     `
     )
     .join("");
-  
-  // Temporarily disable lazy loading to test if images load
-  // lazyLoadImages();
+
+  // Initialize lazy loading after images are added to DOM
+  lazyLoadImages();
 }
 
 function renderCart() {
@@ -920,6 +920,25 @@ if (state.lastLocation) {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Assign DOM elements after DOM is loaded
+  productGrid = document.getElementById("productGrid");
+  cartItems = document.getElementById("cartItems");
+  cartTotal = document.getElementById("cartTotal");
+  authStatus = document.getElementById("authStatus");
+  deliveryName = document.getElementById("deliveryName");
+  deliveryStatus = document.getElementById("deliveryStatus");
+  locationStatus = document.getElementById("locationStatus");
+  authModal = document.getElementById("authModal");
+  ownerModal = document.getElementById("ownerModal");
+  ownerControls = document.getElementById("ownerControls");
+  ownerPriceList = document.getElementById("ownerPriceList");
+  customerDashboardStatus = document.getElementById("customerDashboardStatus");
+  customerCurrentOrder = document.getElementById("customerCurrentOrder");
+  customerOrderHistory = document.getElementById("customerOrderHistory");
+  ownerDashboard = document.getElementById("ownerDashboard");
+  ownerOrdersList = document.getElementById("ownerOrdersList");
+  openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
+
   document.getElementById("openAuthModal").addEventListener("click", openAuthModal);
   document.getElementById("closeModal").addEventListener("click", closeAuthModal);
   document.getElementById("saveCustomer").addEventListener("click", saveCustomerProfile);
