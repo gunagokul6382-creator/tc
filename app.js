@@ -395,7 +395,7 @@ function generateOneDaySalesPdf() {
   let y = 20;
 
   pdf.setFontSize(16);
-  pdf.text("GS CHOLAS DIARY - One Day Sales Report", 14, y);
+  pdf.text("GS CHOLAS DAIRY - One Day Sales Report", 14, y);
   y += 10;
   pdf.setFontSize(11);
   pdf.text(`Date: ${today}`, 14, y);
@@ -607,14 +607,14 @@ function showOwnerNotification(message) {
   // In a real app, this would send SMS/email to owner
   // For now, we'll show a browser notification if permitted
   if (Notification.permission === "granted") {
-    new Notification("GS Cholas Diary - New Order", {
+    new Notification("GS Cholas Dairy - New Order", {
       body: message,
       icon: "./assets/milk-brand.png"
     });
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(function (permission) {
       if (permission === "granted") {
-        new Notification("GS Cholas Diary - New Order", {
+        new Notification("GS Cholas Dairy - New Order", {
           body: message,
           icon: "./assets/milk-brand.png"
         });
