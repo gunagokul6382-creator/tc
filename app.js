@@ -114,7 +114,7 @@ function renderProducts() {
     .map(
       (item) => `
       <article class="card">
-        <img class="product-image" src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='./assets/paddy-field.png'" />
+        <img class="product-image" src="${item.image}?v=20260418" alt="${item.name}" loading="lazy" onerror="this.src='./assets/paddy-field.png?v=20260418'" />
         <h4>${item.name}</h4>
         <p>Rs. ${item.price}</p>
         <button class="btn btn-primary" onclick="addToCart('${item.id}')">Add</button>
@@ -625,14 +625,14 @@ function showOwnerNotification(message) {
   if (Notification.permission === "granted") {
     new Notification("GS Cholas Dairy - New Order", {
       body: message,
-      icon: "./assets/milk-brand.png"
+      icon: "./assets/milk-brand.png?v=20260418"
     });
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(function (permission) {
       if (permission === "granted") {
         new Notification("GS Cholas Dairy - New Order", {
           body: message,
-          icon: "./assets/milk-brand.png"
+          icon: "./assets/milk-brand.png?v=20260418"
         });
       }
     });
