@@ -35,16 +35,9 @@ localStorage.setItem("cholasProducts", JSON.stringify(state.products));
 let productGrid, cartItems, cartTotal, authStatus, deliveryName, deliveryStatus, locationStatus;
 let authModal, ownerModal, ownerControls, ownerPriceList, customerDashboardStatus;
 let customerCurrentOrder, customerOrderHistory, ownerDashboard, ownerOrdersList, openOwnerDashboardBtn;
-const orderConfirmModal = document.getElementById("orderConfirmModal");
-const orderConfirmItems = document.getElementById("orderConfirmItems");
-const orderConfirmTotal = document.getElementById("orderConfirmTotal");
-const orderConfirmLocationStatus = document.getElementById("orderConfirmLocationStatus");
-
-const map = L.map("map").setView([10.7867, 79.1378], 12);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
-
-let locationMarker = L.marker([10.7867, 79.1378]).addTo(map);
-locationMarker.bindPopup("Delivery will track customer live location.");
+let orderConfirmModal, orderConfirmItems, orderConfirmTotal, orderConfirmLocationStatus;
+let map = null;
+let locationMarker = null;
 
 function saveOrders() {
   localStorage.setItem("cholasOrders", JSON.stringify(state.orders));
@@ -913,12 +906,6 @@ function showRouteInApp(orderId) {
   map.fitBounds(window.ownerRouteLine.getBounds(), { padding: [20, 20] });
 }
 
-if (state.lastLocation) {
-  locationMarker.setLatLng([state.lastLocation.latitude, state.lastLocation.longitude]);
-  map.setView([state.lastLocation.latitude, state.lastLocation.longitude], 14);
-  locationStatus.textContent = `Last known location: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`;
-}
-
 document.addEventListener("DOMContentLoaded", function() {
   // Assign DOM elements after DOM is loaded
   productGrid = document.getElementById("productGrid");
@@ -938,6 +925,27 @@ document.addEventListener("DOMContentLoaded", function() {
   ownerDashboard = document.getElementById("ownerDashboard");
   ownerOrdersList = document.getElementById("ownerOrdersList");
   openOwnerDashboardBtn = document.getElementById("openOwnerDashboard");
+  orderConfirmModal = document.getElementById("orderConfirmModal");
+  orderConfirmItems = document.getElementById("orderConfirmItems");
+  orderConfirmTotal = document.getElementById("orderConfirmTotal");
+  orderConfirmLocationStatus = document.getElementById("orderConfirmLocationStatus");
+
+  try {
+    if (window.L) {
+      map = L.map("map").setView([10.7867, 79.1378], 12);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+      locationMarker = L.marker([10.7867, 79.1378]).addTo(map);
+      locationMarker.bindPopup("Delivery will track customer live location.");
+    }
+  } catch (error) {
+      console.warn("Map initialization failed:", error);
+  }
+
+  if (state.lastLocation && map && locationMarker && locationStatus) {
+    locationMarker.setLatLng([state.lastLocation.latitude, state.lastLocation.longitude]);
+    map.setView([state.lastLocation.latitude, state.lastLocation.longitude], 14);
+    locationStatus.textContent = `Last known location: ${state.lastLocation.latitude.toFixed(5)}, ${state.lastLocation.longitude.toFixed(5)}`;
+  }
 
   document.getElementById("openAuthModal").addEventListener("click", openAuthModal);
   document.getElementById("closeModal").addEventListener("click", closeAuthModal);
