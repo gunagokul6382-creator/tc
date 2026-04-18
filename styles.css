@@ -413,8 +413,8 @@ body {
 }
 
 .modal-content {
-  background: #fff;
-  color: #1f1f1f;
+  background: #1a1a1a;
+  color: #ffffff;
   border-radius: 14px;
   width: min(92vw, 420px);
   padding: 1rem;

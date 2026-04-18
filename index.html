@@ -99,6 +99,9 @@
     <section id="ownerDashboard" class="owner-dashboard hidden">
       <h3>Owner Dashboard</h3>
       <p class="small-text">All incoming orders with live location, customer details, and delivery status.</p>
+      <div style="margin-bottom: 1rem;">
+        <button class="btn btn-primary" onclick="generateSalesReport()">📊 Generate Today's Sales Report (PDF)</button>
+      </div>
       <div id="ownerOrdersList" class="order-card-list"></div>
     </section>
   </main>
