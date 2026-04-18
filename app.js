@@ -425,6 +425,19 @@ function generateOneDaySalesPdf() {
   pdf.save(`gsg-one-day-sales-${today}.pdf`);
 }
 
+function stopLocationShare() {
+  if (state.locationWatcher !== null) {
+    navigator.geolocation.clearWatch(state.locationWatcher);
+    state.locationWatcher = null;
+    locationStatus.textContent = "Location sharing stopped.";
+  }
+}
+
+function startLocationShare() {
+  // Wrapper function for the hero section Share Location button
+  startLocationShareForOrder();
+}
+
 function startLocationShareForOrder() {
   if (!navigator.geolocation) {
     orderConfirmLocationStatus.textContent = "Location not supported on this device.";
