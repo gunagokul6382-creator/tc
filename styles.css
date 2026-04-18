@@ -318,6 +318,26 @@ body {
   background-color: rgba(0, 0, 0, 0.2);
   will-change: transform;
   contain: layout style paint;
+  transition: transform 0.2s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.product-image.lazy {
+  filter: blur(2px);
+  transition: filter 0.3s ease;
+}
+
+.product-image:not(.lazy) {
+  filter: none;
 }
 
 .card h4,

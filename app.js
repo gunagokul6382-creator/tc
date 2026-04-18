@@ -63,9 +63,25 @@ function saveOrders() {
   localStorage.setItem("cholasOrders", JSON.stringify(state.orders));
 }
 
-function formatDateTime(isoValue) {
-  const date = new Date(isoValue);
-  return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+function lazyLoadImages() {
+  const imageObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry, index) => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        // Add small delay to prevent all images loading at once
+        setTimeout(() => {
+          img.src = img.dataset.src;
+          img.classList.remove('lazy');
+          observer.unobserve(img);
+        }, index * 100); // 100ms delay between each image
+      }
+    });
+  }, {
+    rootMargin: '50px' // Start loading 50px before image comes into view
+  });
+  
+  const lazyImages = document.querySelectorAll('img.lazy');
+  lazyImages.forEach(img => imageObserver.observe(img));
 }
 
 function getStatusClass(status) {
@@ -114,7 +130,17 @@ function renderProducts() {
     .map(
       (item) => `
       <article class="card">
-        <img class="product-image" src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='assets/paddy-field.png'; this.style.border='2px solid red';" />
+        <div class="image-container">
+          <img class="product-image lazy" 
+               data-src="${item.image}" 
+               src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjExMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjRjNGM0YzIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkxvYWRpbmcuLi48L3RleHQ+PC9zdmc+" 
+               alt="${item.name}" 
+               width="100" 
+               height="110"
+               loading="lazy" 
+               decoding="async"
+               onerror="this.src='assets/paddy-field.png'; this.style.border='2px solid red';" />
+        </div>
         <h4>${item.name}</h4>
         <p>Rs. ${item.price}</p>
         <button class="btn btn-primary" onclick="addToCart('${item.id}')">Add</button>
@@ -122,6 +148,9 @@ function renderProducts() {
     `
     )
     .join("");
+  
+  // Lazy load images when they come into view
+  lazyLoadImages();
 }
 
 function renderCart() {
