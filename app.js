@@ -11,14 +11,7 @@ let OWNER_CONTACT_NUMBER = localStorage.getItem("cholasOwnerContact") || "+91 90
 const OWNER_BASE_LOCATION = { latitude: 10.7867, longitude: 79.1378 };
 
 const savedProducts = JSON.parse(localStorage.getItem("cholasProducts")) || [];
-const mergedProducts =
-  savedProducts.length > 0
-    ? products.map((defaultProduct) => {
-        const saved = savedProducts.find((item) => item.id === defaultProduct.id);
-        return saved ? { ...defaultProduct, price: saved.price ?? defaultProduct.price } : defaultProduct;
-      })
-    : products;
-
+const mergedProducts = products; // Force use default products for now
 const state = {
   cart: [],
   products: mergedProducts,
@@ -124,6 +117,7 @@ function renderProducts() {
   }
 
   console.log("Rendering", state.products.length, "products");
+  console.log("productGrid found:", !!productGrid);
 
   productGrid.innerHTML = state.products
     .map(
@@ -147,6 +141,11 @@ function renderProducts() {
     `
     )
     .join("");
+
+  // Fallback if no products rendered
+  if (productGrid.children.length === 0) {
+    productGrid.innerHTML = '<p style="color: red; padding: 1rem;">No products loaded. Please refresh the page or check console for errors.</p>';
+  }
 
   // Initialize lazy loading after images are added to DOM
   lazyLoadImages();
