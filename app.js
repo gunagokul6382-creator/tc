@@ -1,8 +1,8 @@
 const products = [
-  { id: "a1-milk", name: "A1 பால் / A1 Milk (1L)", price: 65, image: "./assets/a1-milk.png" },
-  { id: "a2-milk", name: "A2 பால் / A2 Milk (1L)", price: 85, image: "./assets/a2-milk.png" },
-  { id: "ghee", name: "நெய் / Ghee (500ml)", price: 420, image: "./assets/ghee.png" },
-  { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "./assets/butter.png" },
+  { id: "a1-milk", name: "A1 பால் / A1 Milk (1L)", price: 65, image: "assets/a1-milk.png" },
+  { id: "a2-milk", name: "A2 பால் / A2 Milk (1L)", price: 85, image: "assets/a2-milk.png" },
+  { id: "ghee", name: "நெய் / Ghee (500ml)", price: 420, image: "assets/ghee.png" },
+  { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "assets/butter.png" },
 ];
 
 const OWNER_LOGIN_ID = "gsowner";
@@ -138,7 +138,7 @@ function renderProducts() {
                height="110"
                loading="lazy"
                decoding="async"
-               onerror="this.src='./assets/paddy-field.png'; this.style.border='2px solid red';" />
+               onerror="this.src='assets/paddy-field.png'; this.style.border='2px solid red';" />
         </div>
         <h4>${item.name}</h4>
         <p>Rs. ${item.price}</p>
