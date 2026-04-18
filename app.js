@@ -1,8 +1,8 @@
 const products = [
-  { id: "a1-milk", name: "A1 பால் / A1 Milk (1L)", price: 65, image: "./assets/a1-milk.png" },
-  { id: "a2-milk", name: "A2 பால் / A2 Milk (1L)", price: 85, image: "./assets/a2-milk.png" },
-  { id: "ghee", name: "நெய் / Ghee (500ml)", price: 420, image: "./assets/ghee.png" },
-  { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "./assets/butter.png" },
+  { id: "a1-milk", name: "A1 பால் / A1 Milk (1L)", price: 65, image: "assets/a1-milk.png" },
+  { id: "a2-milk", name: "A2 பால் / A2 Milk (1L)", price: 85, image: "assets/a2-milk.png" },
+  { id: "ghee", name: "நெய் / Ghee (500ml)", price: 420, image: "assets/ghee.png" },
+  { id: "butter", name: "வெண்ணெய் / Butter (200g)", price: 120, image: "assets/butter.png" },
 ];
 
 const OWNER_LOGIN_ID = "gsowner";
@@ -114,7 +114,7 @@ function renderProducts() {
     .map(
       (item) => `
       <article class="card">
-        <img class="product-image" src="${item.image}?v=20260418" alt="${item.name}" loading="lazy" onerror="this.src='./assets/paddy-field.png?v=20260418'" />
+        <img class="product-image" src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='assets/paddy-field.png'; this.style.border='2px solid red';" />
         <h4>${item.name}</h4>
         <p>Rs. ${item.price}</p>
         <button class="btn btn-primary" onclick="addToCart('${item.id}')">Add</button>
@@ -738,14 +738,14 @@ function showOwnerNotification(message) {
   if (Notification.permission === "granted") {
     new Notification("GS Cholas Dairy - New Order", {
       body: message,
-      icon: "./assets/milk-brand.png?v=20260418"
+      icon: "assets/milk-brand.png"
     });
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(function (permission) {
       if (permission === "granted") {
         new Notification("GS Cholas Dairy - New Order", {
           body: message,
-          icon: "./assets/milk-brand.png?v=20260418"
+          icon: "assets/milk-brand.png"
         });
       }
     });
@@ -761,14 +761,14 @@ function showCustomerNotification(message) {
   if (Notification.permission === "granted") {
     new Notification("GS Cholas Dairy - Order Update", {
       body: message,
-      icon: "./assets/milk-brand.png?v=20260418"
+      icon: "assets/milk-brand.png"
     });
   } else if (Notification.permission !== "denied") {
     Notification.requestPermission().then(function (permission) {
       if (permission === "granted") {
         new Notification("GS Cholas Dairy - Order Update", {
           body: message,
-          icon: "./assets/milk-brand.png?v=20260418"
+          icon: "assets/milk-brand.png"
         });
       }
     });

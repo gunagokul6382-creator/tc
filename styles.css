@@ -13,7 +13,7 @@ body {
 .overlay {
   position: fixed;
   inset: 0;
-  background-image: url('assets/paddy-field.png?v=20260418');
+  background-image: url('assets/paddy-field.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
