@@ -114,7 +114,7 @@ function renderProducts() {
     .map(
       (item) => `
       <article class="card">
-        <img class="product-image" src="${item.image}" alt="${item.name}" onerror="this.src='./assets/paddy-field.png'" />
+        <img class="product-image" src="${item.image}" alt="${item.name}" loading="lazy" onerror="this.src='./assets/paddy-field.png'" />
         <h4>${item.name}</h4>
         <p>Rs. ${item.price}</p>
         <button class="btn btn-primary" onclick="addToCart('${item.id}')">Add</button>

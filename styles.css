@@ -15,16 +15,13 @@ body {
   inset: 0;
   background:
     linear-gradient(120deg, rgba(4, 67, 35, 0.5), rgba(10, 33, 23, 0.62)),
-    url("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Brihadeeswara_Temple%2C_Tanjore%2C_India.jpg/1280px-Brihadeeswara_Temple%2C_Tanjore%2C_India.jpg")
-      center top / cover no-repeat,
-    linear-gradient(to top, rgba(7, 48, 28, 0.72) 0 34%, transparent 58%),
-    url("./assets/paddy-field.png")
-      center bottom / cover no-repeat,
-    url("https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Gir_cow_3.jpg/640px-Gir_cow_3.jpg")
-      right 1.5rem bottom 1rem / 250px no-repeat;
+    linear-gradient(to top, rgba(7, 48, 28, 0.72) 0 34%, transparent 58%);
+  background-color: #0d2f1d;
   opacity: 0.88;
   pointer-events: none;
   z-index: 0;
+  will-change: opacity;
+  contain: strict;
 }
 
 .top-bar,
@@ -114,6 +111,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 16px;
   padding: 1rem;
+  contain: content;
 }
 
 .hero {
@@ -288,12 +286,14 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 0.75rem;
+  contain: layout style;
 }
 
 .card {
   background: rgba(255, 255, 255, 0.1);
   padding: 0.8rem;
   border-radius: 12px;
+  contain: content;
 }
 
 .product-image {
@@ -302,6 +302,10 @@ body {
   object-fit: cover;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.25);
+  display: block;
+  background-color: rgba(0, 0, 0, 0.2);
+  will-change: transform;
+  contain: layout style paint;
 }
 
 .card h4,
@@ -367,6 +371,9 @@ body {
   border-radius: 12px;
   overflow: hidden;
   margin-top: 0.7rem;
+  contain: strict;
+  will-change: transform;
+  background-color: #000;
 }
 
 .delivery-panel {
@@ -383,6 +390,8 @@ body {
   place-items: center;
   background: rgba(0, 0, 0, 0.65);
   z-index: 9;
+  contain: layout style paint;
+  will-change: opacity;
 }
 
 .hidden {
